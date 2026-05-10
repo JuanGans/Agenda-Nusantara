@@ -43,3 +43,13 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Additional local/IDE and tool artifacts
+/.idea/
+.flutter-plugins-dependencies
+.flutter-plugins
+/.dart_tool/
+*.iml
+/.metadata
+ios/Flutter/ephemeral/
+macos/Flutter/ephemeral/
