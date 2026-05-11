@@ -63,16 +63,6 @@ class _BerandaScreenState extends State<BerandaScreen> {
               children: [
                 _buildHeader(),
                 const SizedBox(height: 24),
-                Text(
-                  dateText,
-                  style: TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.3,
-                    color: Colors.black.withValues(alpha: 0.74),
-                  ),
-                ),
-                const SizedBox(height: 10),
                 const Text(
                   'Halo, Selamat Pagi!',
                   style: TextStyle(
@@ -84,12 +74,12 @@ class _BerandaScreenState extends State<BerandaScreen> {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  'Anda memiliki $_incompleteCount tugas tertunda hari ini.',
+                  dateText,
                   style: TextStyle(
-                    fontSize: 20,
-                    height: 1.35,
-                    color: Colors.black.withValues(alpha: 0.68),
-                    fontWeight: FontWeight.w400,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.3,
+                    color: Colors.black.withValues(alpha: 0.74),
                   ),
                 ),
                 const SizedBox(height: 28),
@@ -143,7 +133,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                           children: [
                             Expanded(
                               child: Text(
-                                'Productivity Chart',
+                                'Grafik Produktivitas',
                                 style: const TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
@@ -158,7 +148,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
                             ConstrainedBox(
                               constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.4),
                               child: const Text(
-                                'Weekly Overview',
+                                'Ikhtisar Mingguan',
                                 style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -208,13 +198,13 @@ class _BerandaScreenState extends State<BerandaScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: const [
-                          _WeekLabel('MON'),
-                          _WeekLabel('TUE'),
-                          _WeekLabel('WED'),
-                          _WeekLabel('THU'),
-                          _WeekLabel('FRI'),
-                          _WeekLabel('SAT'),
-                          _WeekLabel('SUN'),
+                          _WeekLabel('SEN'),
+                          _WeekLabel('SEL'),
+                          _WeekLabel('RAB'),
+                          _WeekLabel('KAM'),
+                          _WeekLabel('JUM'),
+                          _WeekLabel('SAB'),
+                          _WeekLabel('MIN'),
                         ],
                       ),
                     ],
@@ -309,29 +299,6 @@ class _BerandaScreenState extends State<BerandaScreen> {
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF0E43A1),
-        foregroundColor: Colors.white,
-        elevation: 8,
-        onPressed: () {
-          Navigator.of(context)
-              .pushNamed(AppConstants.ROUTE_TAMBAH_PENTING)
-              .then((_) => _refreshStats());
-        },
-        child: const Icon(Icons.add, size: 30),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-      bottomNavigationBar: _BottomNavBar(
-        onDashboardTap: () {},
-        onTasksTap: () {
-          Navigator.of(context)
-              .pushNamed(AppConstants.ROUTE_DAFTAR)
-              .then((_) => _refreshStats());
-        },
-        onSettingsTap: () {
-          Navigator.of(context).pushNamed(AppConstants.ROUTE_SETTINGS);
-        },
-      ),
     );
   }
 
@@ -346,46 +313,15 @@ class _BerandaScreenState extends State<BerandaScreen> {
           top: false,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              IconButton(
-                onPressed: () {},
-                icon: const Icon(Icons.menu, size: 28),
-                color: Colors.white,
-                splashRadius: 22,
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 6, right: 6),
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Agenda Nusantara',
-                      style: const TextStyle(
-                        fontSize: 28,
-                        height: 1.0,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white.withValues(alpha: 0.12),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.24), width: 2),
-                ),
-                child: const ClipOval(
-                  child: Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 26,
-                  ),
+              Text(
+                'Agenda Nusantara',
+                style: const TextStyle(
+                  fontSize: 28,
+                  height: 1.0,
+                  fontWeight: FontWeight.w800,
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -605,111 +541,6 @@ class _WeekLabel extends StatelessWidget {
         fontWeight: FontWeight.w700,
         color: Color(0xFF6B7280),
         letterSpacing: 0.8,
-      ),
-    );
-  }
-}
-
-class _BottomNavBar extends StatelessWidget {
-  const _BottomNavBar({
-    required this.onDashboardTap,
-    required this.onTasksTap,
-    required this.onSettingsTap,
-  });
-
-  final VoidCallback onDashboardTap;
-  final VoidCallback onTasksTap;
-  final VoidCallback onSettingsTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(24),
-          topRight: Radius.circular(24),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 18,
-            offset: const Offset(0, -4),
-          ),
-        ],
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: SafeArea(
-        top: false,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            _BottomNavItem(
-              icon: Icons.dashboard_outlined,
-              label: 'Dashboard',
-              active: true,
-              onTap: onDashboardTap,
-            ),
-            _BottomNavItem(
-              icon: Icons.checklist,
-              label: 'Tasks',
-              active: false,
-              onTap: onTasksTap,
-            ),
-            _BottomNavItem(
-              icon: Icons.settings_outlined,
-              label: 'Settings',
-              active: false,
-              onTap: onSettingsTap,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _BottomNavItem extends StatelessWidget {
-  const _BottomNavItem({
-    required this.icon,
-    required this.label,
-    required this.active,
-    required this.onTap,
-  });
-
-  final IconData icon;
-  final String label;
-  final bool active;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final activeColor = const Color(0xFF0E43A1);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(18),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? const Color(0xFFEAF0FF) : Colors.transparent,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 28, color: active ? activeColor : const Color(0xFF4B5563)),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-                color: active ? activeColor : const Color(0xFF4B5563),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

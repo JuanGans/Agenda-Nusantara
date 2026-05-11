@@ -266,18 +266,28 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                   ),
                   const SizedBox(height: 12),
                   Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[400],
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.person,
-                          size: 32,
-                          color: Colors.white,
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey[300] ?? Colors.grey, width: 2),
+                          ),
+                          child: ClipOval(
+                            child: Image.network(
+                              'https://i.ibb.co.com/yBkzhDcc/2241720042-2.jpg',
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Container(
+                                  color: Colors.grey[400],
+                                );
+                              },
+                            ),
+                          ),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -286,7 +296,7 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const Text(
-                              '[Nama Mahasiswa]',
+                              'Juan Felix Antonio Nathan Tote',
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
@@ -295,7 +305,7 @@ class _PengaturanScreenState extends State<PengaturanScreen> {
                             ),
                             const SizedBox(height: 2),
                             const Text(
-                              'NIM: [xxxxxxxxxx]',
+                              'NIM: 2241720042',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
