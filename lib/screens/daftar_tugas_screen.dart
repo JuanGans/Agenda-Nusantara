@@ -63,22 +63,6 @@ class _DaftarTugasScreenState extends State<DaftarTugasScreen> {
     }
   }
 
-  Future<void> _deleteTask(Task task) async {
-    try {
-      await _db.deleteTask(task.id!);
-      _loadTasks();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Tugas berhasil dihapus')),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
