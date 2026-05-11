@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../database/db_helper.dart';
+import '../models/task_model.dart';
 import '../utils/constants.dart';
 
 class BerandaScreen extends StatefulWidget {
@@ -11,23 +12,37 @@ class BerandaScreen extends StatefulWidget {
   State<BerandaScreen> createState() => _BerandaScreenState();
 }
 
-class _BerandaScreenState extends State<BerandaScreen> {
+class _BerandaScreenState extends State<BerandaScreen> with WidgetsBindingObserver {
   late final DatabaseHelper _db;
   int _completedCount = 0;
   int _incompleteCount = 0;
-  Map<String, int> _completedPerDay = {};
+  List<Task> _tasks = [];
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _db = DatabaseHelper();
     _loadStats();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshStats();
+    }
   }
 
   Future<void> _loadStats() async {
     final completed = await _db.countCompletedTasks();
     final incomplete = await _db.countIncompleteTasks();
-    final perDay = await _db.getCompletedTasksPerDate();
+    final tasks = await _db.getAllTasks();
 
     if (!mounted) {
       return;
@@ -36,7 +51,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
     setState(() {
       _completedCount = completed;
       _incompleteCount = incomplete;
-      _completedPerDay = perDay;
+      _tasks = tasks;
     });
   }
 
@@ -48,7 +63,7 @@ class _BerandaScreenState extends State<BerandaScreen> {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final dateText = DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(now).toUpperCase();
-    final weeklyCounts = _buildWeeklyCounts(now, _completedPerDay);
+    final chartData = _buildChartData();
 
     return Scaffold(
       backgroundColor: const Color(0xFFFAF8FF),
@@ -144,20 +159,6 @@ class _BerandaScreenState extends State<BerandaScreen> {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            ConstrainedBox(
-                              constraints: BoxConstraints(maxWidth: constraints.maxWidth * 0.4),
-                              child: const Text(
-                                'Ikhtisar Mingguan',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: Color(0xFF374151),
-                                ),
-                                textAlign: TextAlign.right,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
                           ],
                         );
                       }),
@@ -166,9 +167,9 @@ class _BerandaScreenState extends State<BerandaScreen> {
                         height: 170,
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
-                          children: List.generate(7, (index) {
-                            final count = weeklyCounts[index];
-                            final maxCount = weeklyCounts.fold<int>(0, (value, element) => element > value ? element : value);
+                          children: List.generate(chartData.length, (index) {
+                            final count = chartData[index]['count'] as int;
+                            final maxCount = chartData.fold<int>(0, (prev, item) => (item['count'] as int) > prev ? item['count'] as int : prev);
                             final heightFactor = maxCount == 0 ? 0.24 : (0.24 + ((count / maxCount) * 0.76));
                             final barColor = _weeklyBarColor(index);
 
@@ -197,15 +198,10 @@ class _BerandaScreenState extends State<BerandaScreen> {
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: const [
-                          _WeekLabel('SEN'),
-                          _WeekLabel('SEL'),
-                          _WeekLabel('RAB'),
-                          _WeekLabel('KAM'),
-                          _WeekLabel('JUM'),
-                          _WeekLabel('SAB'),
-                          _WeekLabel('MIN'),
-                        ],
+                        children: List.generate(
+                          chartData.length,
+                          (index) => _WeekLabel(_getWeekdayName(chartData[index]['date'] as String)),
+                        ),
                       ),
                     ],
                   ),
@@ -331,27 +327,35 @@ class _BerandaScreenState extends State<BerandaScreen> {
     );
   }
 
-  List<int> _buildWeeklyCounts(DateTime now, Map<String, int> completedPerDay) {
-    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    return List<int>.generate(7, (index) {
-      final date = startOfWeek.add(Duration(days: index));
-      final key = DateFormat('yyyy-MM-dd').format(date);
-      return completedPerDay[key] ?? 0;
+  List<Map<String, dynamic>> _buildChartData() {
+    final counts = List<int>.filled(7, 0);
+
+    for (final task in _tasks) {
+      if (task.isDone != 1 || task.dueDate.isEmpty) {
+        continue;
+      }
+
+      try {
+        final dueDate = DateTime.parse(task.dueDate);
+        counts[dueDate.weekday - 1]++;
+      } catch (_) {
+        continue;
+      }
+    }
+
+    const labels = ['SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB', 'MIN'];
+    return List<Map<String, dynamic>>.generate(7, (index) {
+      return {
+        'date': labels[index],
+        'count': counts[index],
+      };
     });
   }
 
-  Color _weeklyBarColor(int index) {
-    const colors = [
-      Color(0xFFAAB9E3),
-      Color(0xFF8EA4D8),
-      Color(0xFFC0CAEA),
-      Color(0xFF0E43A1),
-      Color(0xFF6482C0),
-      Color(0xFF3566B9),
-      Color(0xFF9DB0DB),
-    ];
+  String _getWeekdayName(String label) => label;
 
-    return colors[index % colors.length];
+  Color _weeklyBarColor(int index) {
+    return const Color(0xFF0E43A1);
   }
 }
 

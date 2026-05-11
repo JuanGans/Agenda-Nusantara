@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/task_model.dart';
 import '../utils/constants.dart';
 
@@ -55,7 +56,7 @@ class TaskItemWidget extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          '${task.dueDate} · ${task.category}',
+          '${DateFormat('EEEE, d MMMM yyyy', 'id_ID').format(DateTime.parse(task.dueDate)).toUpperCase()} · ${task.category}',
           style: TextStyle(
             fontSize: 12,
             color: task.isDone == 1 ? Colors.grey : Colors.grey[600],

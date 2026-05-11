@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../database/db_helper.dart';
 import '../models/task_model.dart';
 import '../widgets/task_item_widget.dart';
 import '../utils/constants.dart';
-import 'package:intl/intl.dart';
 
 /// Halaman Daftar Tugas - Menampilkan semua tasks
 class DaftarTugasScreen extends StatefulWidget {
@@ -51,8 +51,8 @@ class _DaftarTugasScreenState extends State<DaftarTugasScreen> {
         await _db.incompleteTask(task.id!);
       } else {
         // Mark as complete
-        final dateFormat = DateFormat('yyyy-MM-dd');
-        await _db.completeTask(task.id!, dateFormat.format(DateTime.now()));
+        final completedDate = DateTime.now();
+        await _db.completeTask(task.id!, DateFormat('yyyy-MM-dd').format(completedDate));
       }
       _loadTasks();
     } catch (e) {
@@ -128,49 +128,9 @@ class _DaftarTugasScreenState extends State<DaftarTugasScreen> {
                     itemCount: _tasks.length,
                     itemBuilder: (context, index) {
                       final task = _tasks[index];
-                      return Dismissible(
-                        key: ValueKey(task.id),
-                        background: Container(
-                          color: Colors.red,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 16),
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
-                        ),
-                        onDismissed: (_) => _deleteTask(task),
-                        child: TaskItemWidget(
-                          task: task,
-                          onTap: () => _toggleTaskComplete(task),
-                          onLongPress: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => AlertDialog(
-                                title: const Text('Hapus Tugas?'),
-                                content: Text(
-                                  'Apakah Anda yakin ingin menghapus "${task.title}"?',
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () => Navigator.pop(context),
-                                    child: const Text('Batal'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                      _deleteTask(task);
-                                    },
-                                    child: const Text(
-                                      'Hapus',
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
-                        ),
+                      return TaskItemWidget(
+                        task: task,
+                        onTap: () => _toggleTaskComplete(task),
                       );
                     },
                   ),
